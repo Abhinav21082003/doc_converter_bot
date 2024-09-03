@@ -4,3 +4,4 @@ pytesseract
 google-generativeai
 python-docx
 reportlab
+python-dotenv
