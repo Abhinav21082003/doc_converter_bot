@@ -7,20 +7,25 @@ from docx import Document
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get API key from environment variable
+api_key = os.getenv('API_KEY')
 
 # Set the path to the Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Adjust the path as necessary
-
-# Hardcoded API key (replace with your actual API key)
-api_key = 'AIzaSyBFn62709Z2xFN4TMtRpv9a_HLVFDxBpgg'
 
 def sanitize_text(text):
     return ''.join(c for c in text if c.isprintable())
 
 if not api_key:
-    st.error("API key not found. Please set it in the code.")
+    st.error("API key not found. Please set it in the .env file.")
 else:
-    # Configure the Gemini API with the hardcoded API key
+    # Configure the Gemini API with the API key
     genai.configure(api_key=api_key)
 
     # Initialize the model
