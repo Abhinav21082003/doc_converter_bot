@@ -1,7 +1,3 @@
-Here is a sample README for your project:
-
----
-
 # Document Conversion and Chatbot with Streamlit
 
 This project is a **Streamlit** web application that provides document conversion features (PDF, text, Word, and images) and a chatbot interface to interact with the extracted text
