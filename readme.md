@@ -1,6 +1,4 @@
-Here's an updated README file that includes the edited content, specifically mentioning the addition of the download button for the chatbot's response:
 
----
 
 # Document Conversion and Chatbot with Streamlit
 
@@ -116,5 +114,3 @@ This project is a **Streamlit** web application that provides document conversio
 - Ensure you have the correct **Google Gemini AI** API key set in your environment variables.
 
 ---
-
-Feel free to adjust any part of the README as necessary!
