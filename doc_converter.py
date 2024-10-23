@@ -7,14 +7,9 @@ from docx import Document
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from dotenv import load_dotenv
-import os
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Get API key from environment variable
-api_key = os.getenv('API_KEY')
+# Hard-coded API key (replace 'your_api_key_here' with your actual API key)
+api_key = "AIzaSyBFn62709Z2xFN4TMtRpv9a_HLVFDxBpgg"
 
 # Set the path to the Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Adjust the path as necessary
@@ -22,8 +17,23 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 def sanitize_text(text):
     return ''.join(c for c in text if c.isprintable())
 
+def wrap_text(text, max_width, font_size):
+    """Wrap text to fit within the specified width."""
+    wrapped_lines = []
+    lines = text.split('\n')
+    for line in lines:
+        while len(line) > max_width:
+            # Find the last space within the maximum width
+            split_index = line.rfind(' ', 0, max_width)
+            if split_index == -1:  # No space found, break the line at max width
+                split_index = max_width
+            wrapped_lines.append(line[:split_index])
+            line = line[split_index:].strip()
+        wrapped_lines.append(line)
+    return wrapped_lines
+
 if not api_key:
-    st.error("API key not found. Please set it in the .env file.")
+    st.error("API key not found.")
 else:
     # Configure the Gemini API with the API key
     genai.configure(api_key=api_key)
@@ -33,7 +43,7 @@ else:
     chat = model.start_chat(history=[])
 
     # Streamlit app layout
-    st.title("Document Conversion and Chatbot ")
+    st.title("Document Conversion and Chatbot")
 
     # Upload file
     uploaded_file = st.file_uploader("Upload an image, PDF, text, or Word file", type=["jpg", "jpeg", "png", "pdf", "txt", "docx"])
@@ -84,9 +94,9 @@ else:
             width, height = letter
             text_object = c.beginText(40, height - 40)
             text_object.setFont("Helvetica", 12)
-            text_object.setTextOrigin(40, height - 40)
 
-            for line in safe_text.splitlines():
+            wrapped_lines = wrap_text(safe_text, 100, 12)  # Font size is 12
+            for line in wrapped_lines:
                 text_object.textLine(line)
 
             c.drawText(text_object)
@@ -132,10 +142,9 @@ else:
             c = canvas.Canvas(buffer, pagesize=letter)
             width, height = letter
             text_object = c.beginText(40, height - 40)
-            text_object.setFont("Helvetica", 12)
-            text_object.setTextOrigin(40, height - 40)
 
-            for line in sanitized_text.splitlines():
+            wrapped_lines = wrap_text(sanitized_text, 100, 12)  # Font size is 12
+            for line in wrapped_lines:
                 text_object.textLine(line)
 
             c.drawText(text_object)
@@ -157,10 +166,9 @@ else:
             c = canvas.Canvas(buffer, pagesize=letter)
             width, height = letter
             text_object = c.beginText(40, height - 40)
-            text_object.setFont("Helvetica", 12)
-            text_object.setTextOrigin(40, height - 40)
 
-            for line in text.splitlines():
+            wrapped_lines = wrap_text(text, 100, 12)  # Font size is 12
+            for line in wrapped_lines:
                 text_object.textLine(line)
 
             c.drawText(text_object)
@@ -173,11 +181,29 @@ else:
         st.subheader("Ask a question based on the extracted text")
         user_question = st.text_input("Your Question:")
 
-        if user_question and text:
+        if user_question and (text or sanitized_text):
             try:
                 # Send the extracted text and user question to the chatbot
-                prompt = f"The following text was extracted from the document:\n\n{text}\n\nBased on this, the user asks: {user_question}\n\nPlease provide an answer."
+                prompt = f"The following text was extracted from the document:\n\n{text or sanitized_text}\n\nBased on this, the user asks: {user_question}\n\nPlease provide an answer."
                 response = chat.send_message(prompt)
                 st.write(f"**Bot:** {response.text}")
+
+                # Download the chatbot's response as a PDF
+                response_file_name = f"{filename}_response.pdf"
+                buffer = io.BytesIO()
+                c = canvas.Canvas(buffer, pagesize=letter)
+                width, height = letter
+                text_object = c.beginText(40, height - 40)
+                text_object.setFont("Helvetica", 12)
+
+                wrapped_response = wrap_text(response.text, 100, 12)  # Font size is 12
+                text_object.textLines(["Chatbot Response:"] + wrapped_response)
+
+                c.drawText(text_object)
+                c.showPage()
+                c.save()
+                buffer.seek(0)
+                st.download_button(label=f"Download Chatbot Response as PDF ({response_file_name})", data=buffer, file_name=response_file_name)
+
             except Exception as e:
                 st.write(f"Error occurred: {e}")
