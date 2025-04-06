@@ -15,7 +15,7 @@ import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-api_key = "AIzaSyDaYXo43shLbVVnZdVNgm00s8bBd6qd1eo"
+api_key = "AIzaSyBFn62709Z2xFN4TMtRpv9a_HLVFDxBpgg"
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
