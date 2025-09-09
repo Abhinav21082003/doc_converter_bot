@@ -15,7 +15,7 @@ import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-api_key = "AIzaSyCJ128PwzCLK_5CRorXKdqYmVzM9A_pGhA"
+api_key = "AIzaSyCHSIpWiX5eHnElQo4074SmG3_4dhEF9gQ"
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -187,3 +187,4 @@ if STREAMLIT_AVAILABLE and api_key:
                 st.write(f"Error occurred: {e}")
 else:
     print("streamlit is required to run the app. Please install it using 'pip install streamlit'")
+
